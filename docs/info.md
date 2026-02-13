@@ -9,11 +9,11 @@ You can also include images in this folder and reference them in the markdown. E
 
 ## How it works
 
-Explain how your project works
+A programmable 8 Bit CPU based on the SAP-1 ARchitecture. The Core is turing complete so your only limit are the 16 Bytes of Memory :D
 
 ## How to test
 
-Explain how to use your project
+Programm by pulling reset low and 
 
 ## External hardware
 
