@@ -13,7 +13,7 @@ parameter JMP = 4'b0100;
 parameter STA = 4'b0101;
 parameter LDI = 4'b0110; 
 parameter SUB = 4'b0111;
-parameter BEQ = 4'b1000; 
+parameter JMZ = 4'b1000; 
 parameter CMP = 4'b1001;
 parameter JMC = 4'b1010;
 
@@ -261,7 +261,7 @@ always @(*) begin
             end
         end
 
-        else if (ir[7:4] == BEQ) begin // BEQ
+        else if (ir[7:4] == JMZ) begin // JMZ
             if (step == 3'd3) begin
                 if (zero_flag == 1'b1) begin
                     ir_out = 1'b1;
