@@ -6,7 +6,6 @@ module cpu(
 );
 
 // Intruction Defintion
-parameter NOP = 8'b00000000;
 parameter LDA = 4'b0001;
 parameter ADD = 4'b0010;
 parameter OUT = 4'b0011;
@@ -138,7 +137,7 @@ always @(posedge clk) begin
         zero_flag <= 1'b0;
     end
     else if ((step == 3'd6 && (ir[7:4] == ADD || ir[7:4] == SUB)) ||  (step == 3'd5 && ir[7:4] == CMP)) begin
-        zero_flag <= (alu == 8'b00000000);
+        zero_flag <= (alu[7:0] == 8'b00000000);
     end
 
 // Carry Flag
