@@ -9,13 +9,15 @@ module tt_um_dranoel06_SAP1 (
     input  wire       rst_n     // reset_n - low to reset
 );
 
-assign uio_out = 8'b0;   
-assign uio_oe  = 8'b0;   
 
 
-wire ena_unused = ena;
-wire [2:0] uio_un_unused = uio_in[6:4];
+assign uio_oe = 8'b01000000; 
+assign uio_out[7:7] = 1'b0;     
+assign uio_out[5:0] = 6'b0;
 
+wire _ena_unused = ena;
+wire [2:0] uio_un_unused = uio_in[6:4]; 
+wire tx_en;
 
 cpu cpu0(
     .clk(clk),
@@ -23,11 +25,18 @@ cpu cpu0(
     .programm_input(ui_in),
     .output_register(uo_out),
     .prog(uio_in[7]),
-    .addr(uio_in[3:0])
+    .addr(uio_in[3:0]),
+    .tx_en(tx_en)
+
+);
+
+uart_tx uart0(
+    .clk(clk),
+    .reset(~rst_n),
+    .tx_en(tx_en),
+    .data(uo_out),
+    .tx(uio_out[6])
 );
 
 
 endmodule
-
-
-

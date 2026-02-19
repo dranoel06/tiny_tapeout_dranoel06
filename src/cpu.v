@@ -2,8 +2,10 @@ module cpu(
     input wire clk, reset, prog, 
     output reg[7:0] output_register, 
     input wire[7:0] programm_input, 
-    input wire [3:0] addr
+    input wire [3:0] addr,
+    output wire tx_en
 );
+
 
 // Intruction Defintion
 parameter LDA = 4'b0001;
@@ -13,9 +15,8 @@ parameter JMP = 4'b0100;
 parameter STA = 4'b0101;
 parameter LDI = 4'b0110; 
 parameter SUB = 4'b0111;
-parameter JMZ = 4'b1000; 
+parameter BEQ = 4'b1000; 
 parameter CMP = 4'b1001;
-parameter JMC = 4'b1010;
 
 //Control Signals
 reg pc_in;
@@ -31,9 +32,11 @@ reg a_imm_in;
 reg a_out;
 reg b_in;
 reg b_out;
-reg output_in;
 reg alu_op;
 reg alu_out;
+reg output_in;
+
+assign tx_en = output_in;
 
 //Registers
 reg[2:0] step;
@@ -44,7 +47,6 @@ reg[7:0] ir;
 reg[7:0] a_reg;
 reg[7:0] b_reg;
 reg zero_flag;
-reg carry_flag;
 
 // Bus
 wire[7:0] bus;
@@ -54,7 +56,7 @@ assign bus =
     ir_out ? {4'b000, ir[3:0]} :
     a_out ? a_reg :
     b_out ? b_reg :
-    alu_out ? alu[7:0] :
+    alu_out ? alu :
     8'b0;
 
 always @(posedge clk) begin
@@ -137,22 +139,14 @@ always @(posedge clk) begin
         zero_flag <= 1'b0;
     end
     else if ((step == 3'd6 && (ir[7:4] == ADD || ir[7:4] == SUB)) ||  (step == 3'd5 && ir[7:4] == CMP)) begin
-        zero_flag <= (alu[7:0] == 8'b00000000);
+        zero_flag <= (alu == 8'b00000000);
     end
-
-// Carry Flag
-    if (reset == 1'b1) begin
-        carry_flag <= 1'b0;
-    end
-    else if ((step == 3'd6 && (ir[7:4] == ADD || ir[7:4] == SUB)) ||  (step == 3'd5 && ir[7:4] == CMP)) begin
-        carry_flag <= (alu[8] == 1'b1);
-    end   
 
 end
 
 //ALU
-wire [8:0] alu;
-assign alu = alu_op ? ({1'b0, a_reg} - {1'b0, b_reg}) : ({1'b0, a_reg} + {1'b0, b_reg});
+wire [7:0] alu;
+assign alu = alu_op ? (a_reg - b_reg) : (a_reg + b_reg);
 
 //Control Unit
 always @(*) begin
@@ -261,7 +255,7 @@ always @(*) begin
             end
         end
 
-        else if (ir[7:4] == JMZ) begin // JMZ
+        else if (ir[7:4] == BEQ) begin // BEQ
             if (step == 3'd3) begin
                 if (zero_flag == 1'b1) begin
                     ir_out = 1'b1;
@@ -284,16 +278,8 @@ always @(*) begin
             end
         end
 
-        else if (ir[7:4] == JMC) begin // JMC
-            if (step == 3'd3) begin
-                if (carry_flag == 1'b1) begin
-                    ir_out = 1'b1;
-                    pc_in  = 1'b1;
-                end        
-            end
-        end
-
     end
 end
+
 
 endmodule
